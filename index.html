@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+<style>
+  :root {
+    --bg: #f5f2eb;
+    --card: #ffffff;
+    --field: #f0ede5;
+    --border: #ddd8cc;
+    --border2: #c4bfb3;
+    --txt: #1a1714;
+    --txt2: #6b6358;
+    --txt3: #9e9488;
+    --acc: #d97706;
+    --acc2: #b45309;
+    --err-bg: #fff5f5;
+    --err-bd: #f87171;
+    --err-tx: #b91c1c;
+    --res-bg: #f5f1e8;
+    --rad: 3px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0e0a;
+      --card: #1c1a14;
+      --field: #252219;
+      --border: #333028;
+      --border2: #4a4638;
+      --txt: #f0ece2;
+      --txt2: #9e9488;
+      --txt3: #6b6358;
+      --acc: #f59e0b;
+      --acc2: #fbbf24;
+      --err-bg: #2c1010;
+      --err-bd: #ef4444;
+      --err-tx: #fca5a5;
+      --res-bg: #141209;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: transparent; }
+  #app {
+    font-family: 'DM Mono', 'Courier New', monospace;
+    background: var(--bg);
+    color: var(--txt);
+    min-height: 100vh;
+    padding: 0;
+    transition: background .2s;
+  }
+  .hdr {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo {
+    font-family: system-ui, sans-serif;
+    font-weight: 800;
+    font-size: .95rem;
+    letter-spacing: .12em;
+  }
+  .logo-b { color: var(--acc); }
+  .theme-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--rad);
+    width: 34px; height: 34px;
+    cursor: pointer;
+    color: var(--txt2);
+    font-size: 1.05rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .15s, color .15s;
+  }
+  .theme-btn:hover { border-color: var(--acc); color: var(--acc); }
+  .hero {
+    padding: 3rem 1.5rem 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-size: .68rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--acc);
+    margin-bottom: .6rem;
+  }
+  .h1 {
+    font-family: system-ui, sans-serif;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    margin-bottom: .75rem;
+  }
+  .h1 em { font-style: normal; color: var(--acc); }
+  .sub { color: var(--txt2); font-size: .85rem; line-height: 1.6; }
+  .wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--rad);
+    padding: 2rem;
+    margin-bottom: 1rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .fw { grid-column: 1/-1; }
+  .fgroup { display: flex; flex-direction: column; gap: .4rem; }
+  .flabel {
+    font-size: .67rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--txt2);
+  }
+  .finput, .ftextarea, .fselect {
+    font-family: 'DM Mono', monospace;
+    font-size: .88rem;
+    background: var(--field);
+    border: 1px solid var(--border);
+    border-radius: var(--rad);
+    color: var(--txt);
+    padding: .6rem .8rem;
+    outline: none;
+    width: 100%;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .ftextarea { resize: vertical; min-height: 80px; }
+  .finput:focus, .ftextarea:focus, .fselect:focus {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 3px rgba(217,119,6,.15);
+  }
+  .fhint {
+    font-size: .68rem;
+    color: var(--txt3);
+    align-self: flex-end;
+  }
+  .run-btn {
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+    font-size: .88rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    background: var(--acc);
+    color: #fff;
+    border: none;
+    border-radius: var(--rad);
+    padding: .9rem 1.25rem;
+    width: 100%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    gap: .5rem;
+    transition: opacity .15s, transform .1s;
+  }
+  .run-btn:hover { opacity: .9; }
+  .run-btn:active { transform: translateY(1px); }
+  .run-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .arrow { transition: transform .2s; }
+  .run-btn:hover .arrow { transform: translateX(4px); }
+  .loader {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: .9rem;
+  }
+  .loader-inner {
+    height: 100%;
+    background: var(--acc);
+    width: 28%;
+    border-radius: 2px;
+    animation: slide 1s ease-in-out infinite;
+  }
+  @keyframes slide {
+    0% { transform: translateX(-200%); }
+    100% { transform: translateX(500%); }
+  }
+  .err {
+    display: flex; align-items: center; gap: .6rem;
+    margin-top: .9rem;
+    padding: .75rem .9rem;
+    background: var(--err-bg);
+    border: 1px solid var(--err-bd);
+    border-radius: var(--rad);
+    color: var(--err-tx);
+    font-size: .82rem;
+    animation: fadeup .2s ease;
+  }
+  .err-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--err-bd);
+    color: white;
+    font-size: .7rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .result-wrap {
+    margin-top: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--rad);
+    overflow: hidden;
+    animation: fadeup .25s ease;
+  }
+  .result-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .55rem .9rem;
+    background: var(--field);
+    border-bottom: 1px solid var(--border);
+  }
+  .result-lbl {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--txt2);
+  }
+  .result-meta { font-size: .68rem; color: var(--acc); }
+  .result-txt {
+    padding: 1rem 1.1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: .85rem;
+    line-height: 1.7;
+    color: var(--txt);
+    background: var(--res-bg);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .result-foot {
+    display: flex; gap: .65rem;
+    padding: .7rem .9rem;
+    background: var(--field);
+    border-top: 1px solid var(--border);
+  }
+  .sec-btn {
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+    font-size: .75rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    background: var(--card);
+    color: var(--txt);
+    border: 1px solid var(--border);
+    border-radius: var(--rad);
+    padding: .5rem .9rem;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .sec-btn:hover { border-color: var(--acc); color: var(--acc); }
+  .sec-btn.ok { border-color: #22c55e; color: #22c55e; }
+  .api-strip {
+    display: flex; align-items: center; gap: .65rem;
+    padding: .55rem .85rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--rad);
+    font-size: .78rem;
+    color: var(--txt2);
+  }
+  .method-badge {
+    font-family: system-ui, sans-serif;
+    font-weight: 800;
+    font-size: .65rem;
+    letter-spacing: .08em;
+    background: var(--acc);
+    color: white;
+    padding: .18rem .4rem;
+    border-radius: 2px;
+  }
+  .note {
+    font-size: .75rem;
+    color: var(--txt3);
+    margin-left: auto;
+    font-style: italic;
+  }
+  @keyframes fadeup {
+    from { opacity:0; transform: translateY(8px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .card { padding: 1.25rem; }
+    .hero { padding: 2rem 1.25rem 1rem; }
+    .wrap { padding: 0 1.25rem 2rem; }
+    .result-foot { flex-direction: column; }
+    .sec-btn { width: 100%; text-align: center; }
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="hdr">
+    <div class="logo">
+      <span class="logo-b">[</span>REPEAT<span class="logo-b">]</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="Toggle theme">◐</button>
+  </header>
+
+  <section class="hero">
+    <p class="eyebrow">utility tool</p>
+    <h1 class="h1">Type once.<br><em>Echo everywhere.</em></h1>
+    <p class="sub">Repeat any text with custom separators — runs entirely in your browser.</p>
+  </section>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="grid">
+        <div class="fgroup fw">
+          <label class="flabel" for="txt">Text to repeat</label>
+          <textarea class="ftextarea" id="txt" placeholder="Type or paste your text here…" rows="3" maxlength="5000"></textarea>
+          <span class="fhint" id="cc">0 / 5000</span>
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="cnt">Repeat count</label>
+          <input class="finput" type="number" id="cnt" value="3" min="1" max="1000" placeholder="e.g. 5" />
+          <span class="fhint">Max 1 000</span>
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="sepPre">Separator</label>
+          <select class="fselect" id="sepPre">
+            <option value=" ">Space</option>
+            <option value="\n">New line</option>
+            <option value=", ">Comma + space</option>
+            <option value=" | ">Pipe  ( | )</option>
+            <option value="">None (no gap)</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div class="fgroup hidden" id="custGroup">
+          <label class="flabel" for="custSep">Custom separator</label>
+          <input class="finput" type="text" id="custSep" placeholder="e.g.  ---  or  •" />
+        </div>
+      </div>
+
+      <button class="run-btn" id="runBtn">
+        <span id="runLbl">Run Repeat</span>
+        <span class="arrow">→</span>
+      </button>
+
+      <div class="loader hidden" id="loader"><div class="loader-inner"></div></div>
+
+      <div class="err hidden" id="errBox">
+        <span class="err-dot">✕</span>
+        <span id="errMsg"></span>
+      </div>
+
+      <div class="result-wrap hidden" id="resWrap">
+        <div class="result-head">
+          <span class="result-lbl">Output</span>
+          <span class="result-meta" id="resMeta"></span>
+        </div>
+        <pre class="result-txt" id="resTxt"></pre>
+        <div class="result-foot">
+          <button class="sec-btn" id="copyBtn">Copy</button>
+          <button class="sec-btn" id="dlBtn">Download .txt</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="api-strip">
+      <span class="method-badge">JS</span>
+      <code>Runs client-side · no backend needed</code>
+      <span class="note">pure HTML/CSS/JS</span>
+    </div>
+  </div>
+</div>
+</body>
+
+<script>
+(function() {
+  const MAX = 1000;
+  const $ = id => document.getElementById(id);
+  const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark'
+    || (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  let darkMode = isDark();
+  function applyTheme() {
+    document.getElementById('app').style.setProperty('--bg', darkMode ? '#0f0e0a' : '#f5f2eb');
+  }
+
+  $('themeBtn').onclick = () => { darkMode = !darkMode; applyTheme(); };
+
+  $('txt').oninput = () => { $('cc').textContent = $('txt').value.length + ' / 5000'; };
+
+  $('sepPre').onchange = () => {
+    $('custGroup').classList.toggle('hidden', $('sepPre').value !== 'custom');
+  };
+
+  function getSep() {
+    const v = $('sepPre').value;
+    if (v === 'custom') return $('custSep').value;
+    if (v === '\\n') return '\n';
+    return v;
+  }
+
+  function showErr(msg) {
+    $('errMsg').textContent = msg;
+    $('errBox').classList.remove('hidden');
+    $('resWrap').classList.add('hidden');
+  }
+  function hideErr() { $('errBox').classList.add('hidden'); }
+
+  function doRepeat() {
+    const text = $('txt').value;
+    const count = parseInt($('cnt').value, 10);
+    const sep = getSep();
+
+    if (!text || !text.trim()) { showErr('Please enter some text to repeat.'); return; }
+    if (isNaN(count) || count < 1) { showErr('Repeat count must be at least 1.'); return; }
+    if (count > MAX) { showErr('Repeat count must not exceed 1 000.'); return; }
+
+    hideErr();
+    $('loader').classList.remove('hidden');
+    $('runBtn').disabled = true;
+    $('runLbl').textContent = 'Processing…';
+
+    setTimeout(() => {
+      const parts = [];
+      for (let i = 0; i < count; i++) parts.push(text);
+      const result = parts.join(sep);
+
+      $('resTxt').textContent = result;
+      const sepLabel = sep === '\n' ? '\\n' : (sep === '' ? 'none' : `"${sep}"`);
+      const wc = result.split(/\s+/).filter(Boolean).length;
+      $('resMeta').textContent = `${count}× · sep: ${sepLabel} · ${result.length} chars · ${wc} words`;
+      $('resWrap').classList.remove('hidden');
+      $('resWrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      $('loader').classList.add('hidden');
+      $('runBtn').disabled = false;
+      $('runLbl').textContent = 'Run Repeat';
+    }, 80);
+  }
+
+  $('runBtn').onclick = doRepeat;
+  $('cnt').onkeydown = e => { if (e.key === 'Enter') doRepeat(); };
+
+  $('copyBtn').onclick = async () => {
+    const t = $('resTxt').textContent;
+    if (!t) return;
+    try {
+      await navigator.clipboard.writeText(t);
+    } catch {
+      const r = document.createRange();
+      r.selectNode($('resTxt'));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(r);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
+    }
+    $('copyBtn').textContent = '✓ Copied!';
+    $('copyBtn').classList.add('ok');
+    setTimeout(() => { $('copyBtn').textContent = 'Copy'; $('copyBtn').classList.remove('ok'); }, 2000);
+  };
+
+  $('dlBtn').onclick = () => {
+    const t = $('resTxt').textContent;
+    if (!t) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([t], { type: 'text/plain' }));
+    a.download = 'repeated-text.txt';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
+  };
+})();
+</script>
+</html>
